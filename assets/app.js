@@ -95,9 +95,17 @@ const App = {
     return this.bookings.filter(b => b.userId === userId)
       .sort((a,b) => new Date(b.date+'T'+b.time) - new Date(a.date+'T'+a.time));
   },
-  isSlotTaken(stylistId, date, time) {
-    return this.bookings.some(b => b.stylistId === stylistId &&
-                                    b.date === date && b.time === time);
+  isSlotTaken(stylistId, date, time, duration) {
+    const [th] = time.split(':').map(Number);
+    const tStart = th * 60;
+    const tEnd = tStart + ((duration || 1) * 60);
+    return this.bookings.some(b => {
+      if (b.stylistId !== stylistId || b.date !== date) return false;
+      const [bh] = b.time.split(':').map(Number);
+      const bStart = bh * 60;
+      const bEnd = bStart + ((b.duration || 1) * 60);
+      return tStart < bEnd && tEnd > bStart;
+    });
   },
 
   // ── UI HELPERS ──

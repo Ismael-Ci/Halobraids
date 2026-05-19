@@ -156,16 +156,18 @@ const Booking = {
     if (!this.state.date) return;
     const cont = document.getElementById('slots-container');
     const title = document.getElementById('slots-title');
+    const svcDuration = this.state.service ? this.state.service.duration : 1;
 
     const [yy, mm, dd] = this.state.date.split('-').map(Number);
-    const date = new Date(yy, mm-1, dd);
     const monthName = App.t('month.' + (mm-1));
     title.textContent = `${dd} ${monthName} ${yy}`.toUpperCase();
 
-    const available = TIME_SLOTS.map(t => ({
-      time: t,
-      taken: App.isSlotTaken(this.state.stylist.id, this.state.date, t)
-    }));
+    const available = TIME_SLOTS
+      .filter(t => parseInt(t.split(':')[0]) + svcDuration <= 20)
+      .map(t => ({
+        time: t,
+        taken: App.isSlotTaken(this.state.stylist.id, this.state.date, t, svcDuration)
+      }));
 
     cont.innerHTML = `
       <div class="slots-grid">
