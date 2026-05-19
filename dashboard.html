@@ -16,21 +16,44 @@
 <body data-page="dashboard">
 
 <nav class="nav solid" id="app-nav"></nav>
-
 <div style="height:72px"></div>
+
+<!-- CANCEL MODAL -->
+<div id="cancel-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-title" data-i18n="dash.cancelConfirm"></div>
+    <p class="modal-body" data-i18n="dash.cancelWarning"></p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="cancel-modal-no" data-i18n="common.cancel"></button>
+      <button class="btn btn-dark" id="cancel-modal-yes" data-i18n="dash.cancel"></button>
+    </div>
+  </div>
+</div>
 
 <div class="dashboard">
 
+  <!-- HEADER -->
   <div class="dash-header">
     <div class="dash-greeting">
-      <div class="h-script" data-i18n="dash.greeting"></div>
-      <h1 id="dash-name">—</h1>
-      <p style="color:var(--muted);font-family:'Cormorant Garamond',serif;font-style:italic;margin-top:.3rem" data-i18n="dash.welcome"></p>
+      <div class="h-script" style="font-size:2.2rem" data-i18n="dash.greeting"></div>
+      <h1 id="dash-name" style="font-family:'Cinzel',serif;font-size:1.5rem;letter-spacing:.12em;margin:.2rem 0">—</h1>
+      <p style="color:var(--muted);font-family:'Cormorant Garamond',serif;font-style:italic" data-i18n="dash.welcome"></p>
     </div>
-    <div style="display:flex;gap:.8rem;flex-wrap:wrap">
+    <div style="display:flex;gap:.8rem;flex-wrap:wrap;align-items:center">
       <a href="booking.html" class="btn" data-i18n="dash.newBooking"></a>
       <button class="btn btn-outline" id="logout-btn" data-i18n="nav.logout"></button>
     </div>
+  </div>
+
+  <!-- COUNTDOWN (next appt) -->
+  <div id="countdown-banner" class="countdown-banner hidden">
+    <span class="label" data-i18n="dash.countdown"></span>
+    <div class="countdown-boxes">
+      <div class="cbox"><span id="cd-days">0</span><small data-i18n="dash.countdownDays"></small></div>
+      <div class="cbox"><span id="cd-hours">0</span><small data-i18n="dash.countdownHours"></small></div>
+      <div class="cbox"><span id="cd-mins">0</span><small data-i18n="dash.countdownMins"></small></div>
+    </div>
+    <div id="countdown-label" style="font-family:'Cormorant Garamond',serif;font-size:.95rem;color:rgba(255,255,255,.6)"></div>
   </div>
 
   <!-- STATS -->
@@ -50,6 +73,27 @@
     <div class="stat">
       <div class="stat-val" id="stat-spent">0 $</div>
       <div class="stat-lbl" data-i18n="dash.stat.spent"></div>
+    </div>
+  </div>
+
+  <!-- LOYALTY PROGRAM -->
+  <div class="dash-section dash-loyalty-section">
+    <h2 data-i18n="dash.loyalty"></h2>
+    <div class="loyalty-card">
+      <div class="loyalty-left">
+        <div class="loyalty-level" id="loyalty-level">—</div>
+        <div class="loyalty-visits">
+          <span id="loyalty-count">0</span>
+          <span style="font-size:.85rem;color:var(--muted);margin-left:.3rem" data-i18n="dash.loyaltyVisits"></span>
+        </div>
+      </div>
+      <div class="loyalty-right">
+        <div class="loyalty-bar-wrap">
+          <div class="loyalty-bar"><div class="loyalty-fill" id="loyalty-fill" style="width:0%"></div></div>
+          <div class="loyalty-to-next" id="loyalty-to-next"></div>
+        </div>
+        <div class="loyalty-reward" id="loyalty-reward"></div>
+      </div>
     </div>
   </div>
 
@@ -85,10 +129,22 @@
       </div>
       <div>
         <label data-i18n="account.phone"></label>
-        <input type="tel" id="pf-phone"/>
+        <input type="tel" id="pf-phone" placeholder="+1 (613) 000-0000"/>
       </div>
       <button type="submit" class="btn btn-dark" style="align-self:flex-start" data-i18n="dash.update"></button>
     </form>
+
+    <!-- Change password -->
+    <details style="max-width:600px;margin-top:2rem">
+      <summary style="font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.18em;cursor:pointer;color:var(--muted);list-style:none" data-i18n="dash.changePassword"></summary>
+      <form class="form" id="pwd-form" style="margin-top:1rem">
+        <div>
+          <label data-i18n="dash.newPassword"></label>
+          <input type="password" id="pf-pwd" minlength="6"/>
+        </div>
+        <button type="submit" class="btn btn-dark btn-sm" style="align-self:flex-start" data-i18n="dash.update"></button>
+      </form>
+    </details>
   </div>
 
 </div>
@@ -99,8 +155,9 @@
 <script src="assets/app.js"></script>
 <script src="assets/luxury.js"></script>
 <script>
-  // Guard
   if (!App.currentUser) { location.href = 'account.html'; }
+
+  let pendingCancelId = null;
 
   function renderDashboard() {
     const cu = App.currentUser;
@@ -110,68 +167,152 @@
 
     const all = App.userBookings(cu.id);
     const now = new Date();
-    const upcoming = all.filter(b => new Date(b.date + 'T' + b.time) >= now);
-    const past = all.filter(b => new Date(b.date + 'T' + b.time) < now);
-    const spent = past.reduce((sum, b) => sum + b.price, 0);
+    const upcoming = all.filter(b => b.status !== 'cancelled' && new Date(b.date + 'T' + b.time) >= now);
+    const past     = all.filter(b => b.status === 'cancelled' || new Date(b.date + 'T' + b.time) < now);
+    const spent    = past.filter(b => b.status !== 'cancelled').reduce((s, b) => s + (b.price || 0), 0);
 
-    document.getElementById('stat-total').textContent = all.length;
+    document.getElementById('stat-total').textContent    = all.length;
     document.getElementById('stat-upcoming').textContent = upcoming.length;
-    document.getElementById('stat-past').textContent = past.length;
-    document.getElementById('stat-spent').textContent = spent + ' $';
+    document.getElementById('stat-past').textContent     = past.filter(b => b.status !== 'cancelled').length;
+    document.getElementById('stat-spent').textContent    = spent + ' $';
 
-    const renderList = (list, container, isPast) => {
+    // Loyalty
+    const loy = App.getLoyalty(cu.id);
+    document.getElementById('loyalty-level').textContent = loy.level;
+    document.getElementById('loyalty-count').textContent = loy.completed;
+    document.getElementById('loyalty-fill').style.width  = loy.pct + '%';
+    document.getElementById('loyalty-reward').innerHTML  =
+      `<strong>${App.t('dash.loyaltyReward')}</strong> ${loy.reward}`;
+    document.getElementById('loyalty-to-next').textContent =
+      loy.toNext > 0 ? `${loy.toNext} ${App.t('dash.loyaltyNext')}` : '';
+
+    // Countdown to next appointment
+    const next = upcoming.sort((a,b) => new Date(a.date+'T'+a.time) - new Date(b.date+'T'+b.time))[0];
+    const banner = document.getElementById('countdown-banner');
+    if (next) {
+      const diff = new Date(next.date + 'T' + next.time) - now;
+      const days  = Math.floor(diff / 864e5);
+      const hours = Math.floor((diff % 864e5) / 36e5);
+      const mins  = Math.floor((diff % 36e5) / 6e4);
+      document.getElementById('cd-days').textContent  = days;
+      document.getElementById('cd-hours').textContent = hours;
+      document.getElementById('cd-mins').textContent  = mins;
+      const svc = SERVICES.find(s => s.id === next.serviceId);
+      const [yy,mm,dd] = next.date.split('-').map(Number);
+      document.getElementById('countdown-label').textContent =
+        `${svc ? svc['name'+App.cap(App.lang)] : ''} · ${dd} ${App.t('monthShort.'+(mm-1))} ${yy} · ${next.time}`;
+      banner.classList.remove('hidden');
+    } else {
+      banner.classList.add('hidden');
+    }
+
+    // Render booking lists
+    const renderList = (list, containerId, isPast) => {
+      const el = document.getElementById(containerId);
       if (!list.length) {
-        container.innerHTML = `<p class="empty">${App.t('dash.empty')}</p>`;
+        el.innerHTML = `<p class="empty">${App.t(isPast ? 'dash.empty' : 'dash.emptyUpcoming')}</p>`;
         return;
       }
-      container.innerHTML = list.map(b => {
-        const s = SERVICES.find(x => x.id === b.serviceId);
+      el.innerHTML = list.map(b => {
+        const s  = SERVICES.find(x => x.id === b.serviceId);
         const st = STYLISTS.find(x => x.id === b.stylistId);
         const [yy, mm, dd] = b.date.split('-').map(Number);
         const monthShort = App.t('monthShort.' + (mm-1));
+        const isCancelled = b.status === 'cancelled';
+        const hoursUntil  = (new Date(b.date+'T'+b.time) - now) / 36e5;
+        const canCancel   = !isPast && !isCancelled && hoursUntil >= 48;
+        const disc = b.discountPct || 0;
+        const finalPrice = b.price - Math.round(b.price * disc / 100);
+
         return `
-          <div class="booking-item">
-            <div class="booking-badge">
+          <div class="booking-item ${isCancelled ? 'cancelled' : ''}">
+            <div class="booking-badge ${isCancelled ? 'cancelled' : isPast ? 'past' : ''}">
               <div class="day">${dd}</div>
               <div class="mo">${monthShort}</div>
             </div>
             <div class="booking-info">
               <h4>${s ? s['name'+App.cap(App.lang)].toUpperCase() : 'SERVICE'}</h4>
-              <p>${App.t('booking.stylist')} : ${st ? st['name'+App.cap(App.lang)] : '—'} · ${b.time} · ${b.duration}h<br/>
-                 ${App.t('booking.price')} : ${b.price} $</p>
+              <p>
+                ${App.t('booking.stylist')}: <strong>${st ? st['name'+App.cap(App.lang)] : '—'}</strong>
+                · ${b.time} · ${b.duration}h
+              </p>
+              <p style="color:var(--gold)">
+                ${finalPrice} $${disc > 0 ? ` <span style="font-size:.75rem;background:var(--gold);color:var(--black);padding:1px 5px;border-radius:1px">−${disc}%</span>` : ''}
+              </p>
+              ${b.note ? `<p style="font-style:italic;color:var(--muted);font-size:.85rem;margin-top:.25rem">"${b.note}"</p>` : ''}
             </div>
-            <div class="booking-status ${isPast?'past':''}">
-              ${App.t(isPast?'dash.pastStatus':'dash.upcomingStatus')}
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.5rem">
+              <div class="booking-status ${isCancelled ? 'cancelled' : isPast ? 'past' : ''}">
+                ${App.t(isCancelled ? 'dash.cancelledStatus' : isPast ? 'dash.pastStatus' : 'dash.upcomingStatus')}
+              </div>
+              ${canCancel ? `<button class="btn btn-outline btn-sm" style="font-size:.58rem" data-cancel="${b.id}" data-i18n="dash.cancel">${App.t('dash.cancel')}</button>` : ''}
+              ${!isPast && !isCancelled ? `<a href="booking.html" class="btn btn-sm" style="font-size:.58rem" data-i18n="dash.reschedule">${App.t('dash.reschedule')}</a>` : ''}
             </div>
           </div>`;
       }).join('');
+
+      el.querySelectorAll('[data-cancel]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          pendingCancelId = btn.dataset.cancel;
+          document.getElementById('cancel-modal').classList.remove('hidden');
+          App.applyTranslations();
+        });
+      });
     };
 
-    renderList(upcoming, document.getElementById('upcoming-list'), false);
-    renderList(past, document.getElementById('past-list'), true);
+    renderList(upcoming, 'upcoming-list', false);
+    renderList(past, 'past-list', true);
 
     // Profile form
-    document.getElementById('pf-first').value = cu.firstname;
-    document.getElementById('pf-last').value = cu.lastname;
-    document.getElementById('pf-email').value = cu.email;
-    document.getElementById('pf-phone').value = cu.phone || '';
+    document.getElementById('pf-first').value = cu.firstname || '';
+    document.getElementById('pf-last').value  = cu.lastname  || '';
+    document.getElementById('pf-email').value = cu.email     || '';
+    document.getElementById('pf-phone').value = cu.phone     || '';
   }
 
   document.addEventListener('DOMContentLoaded', () => {
     renderDashboard();
-
     document.getElementById('logout-btn').onclick = () => App.logout();
 
+    // Cancel modal
+    document.getElementById('cancel-modal-no').onclick = () => {
+      document.getElementById('cancel-modal').classList.add('hidden');
+      pendingCancelId = null;
+    };
+    document.getElementById('cancel-modal-yes').onclick = () => {
+      if (!pendingCancelId) return;
+      const res = App.cancelBooking(pendingCancelId);
+      document.getElementById('cancel-modal').classList.add('hidden');
+      if (res.tooLate) {
+        App.toast(App.t('dash.cancelTooLate'), 'error');
+      } else if (res.ok) {
+        App.toast(App.t('dash.cancelDone'), 'success');
+        renderDashboard();
+      }
+      pendingCancelId = null;
+    };
+
+    // Profile form
     document.getElementById('profile-form').addEventListener('submit', e => {
       e.preventDefault();
       App.updateProfile({
         firstname: document.getElementById('pf-first').value.trim(),
-        lastname: document.getElementById('pf-last').value.trim(),
-        phone: document.getElementById('pf-phone').value.trim(),
+        lastname:  document.getElementById('pf-last').value.trim(),
+        phone:     document.getElementById('pf-phone').value.trim(),
       });
-      App.toast(App.t('dash.profileUpdated'),'success');
+      App.toast(App.t('dash.profileUpdated'), 'success');
       App.renderHeader();
       renderDashboard();
+    });
+
+    // Password form
+    document.getElementById('pwd-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const pwd = document.getElementById('pf-pwd').value;
+      if (pwd.length < 6) return;
+      App.updateProfile({ password: App.hash(pwd) });
+      App.toast(App.t('dash.pwdUpdated'), 'success');
+      e.target.reset();
     });
   });
 

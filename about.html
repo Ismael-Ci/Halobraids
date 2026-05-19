@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Notre Histoire — Halo Braids</title>
+  <meta name="description" content="L'histoire de Halo Braids, studio de tressage de luxe à Ottawa-Gatineau. Notre équipe, nos valeurs, notre passion pour les coiffures protectrices."/>
+  <meta name="theme-color" content="#0c0806"/>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Cinzel:wght@400;500;600&family=Great+Vibes&family=Jost:wght@200;300;400&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="assets/styles.css"/>
+</head>
+<body data-page="about">
+
+<nav class="nav solid" id="app-nav"></nav>
+
+<section class="banner">
+  <div class="banner-bg"></div>
+  <div class="banner-content">
+    <h1 data-i18n="about.banner"></h1>
+    <div class="h-script" data-i18n="about.subtitle"></div>
+  </div>
+</section>
+
+<!-- STORY -->
+<section class="section section-light">
+  <div style="display:grid;grid-template-columns:1fr 1.1fr;gap:5rem;max-width:1100px;margin:0 auto;align-items:center" class="about-story-grid">
+    <div class="fade-up">
+      <span class="label" data-i18n="about.label"></span>
+      <div class="h-script" style="font-size:clamp(2.5rem,5vw,4.5rem);margin:.4rem 0" data-i18n="about.storyTitle"></div>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;line-height:1.9;color:var(--muted);margin-top:1.2rem" data-i18n="about.storyP1"></p>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;line-height:1.9;color:var(--muted);margin-top:1rem" data-i18n="about.storyP2"></p>
+      <div style="margin-top:2rem;display:flex;gap:3rem">
+        <div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:3rem;color:var(--gold);line-height:1">320+</div>
+          <div class="label" style="font-size:.6rem" data-i18n="stats.clients"></div>
+        </div>
+        <div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:3rem;color:var(--gold);line-height:1">4.9★</div>
+          <div class="label" style="font-size:.6rem" data-i18n="stats.rating"></div>
+        </div>
+        <div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:3rem;color:var(--gold);line-height:1">8+</div>
+          <div class="label" style="font-size:.6rem">ANS D'EXP.</div>
+        </div>
+      </div>
+    </div>
+    <div class="fade-up about-story-img">
+      <img src="https://images.pexels.com/photos/14911898/pexels-photo-14911898.jpeg?auto=compress&cs=tinysrgb&w=800"
+           alt="Halo Braids Studio" loading="lazy"
+           style="width:100%;height:500px;object-fit:cover;border-radius:var(--radius)"
+           onerror="this.style.display='none'"/>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="section section-cream">
+  <div class="section-header fade-up">
+    <span class="label" data-i18n="about.teamLabel"></span>
+    <div class="h-script" style="font-size:clamp(2.5rem,5vw,4rem)" data-i18n="about.teamTitle"></div>
+  </div>
+  <div class="grid-3" id="team-grid"></div>
+</section>
+
+<!-- VALUES -->
+<section class="section section-dark">
+  <div class="section-header fade-up" style="text-align:center">
+    <span class="label" data-i18n="about.valuesLabel"></span>
+    <div class="h-script" style="font-size:clamp(2.5rem,5vw,4rem)">Ce Qui Nous Guide</div>
+  </div>
+  <div class="grid-4" style="max-width:1000px;margin:0 auto;text-align:center">
+    <div class="value-card fade-up">
+      <div class="value-num">01</div>
+      <div class="value-title" data-i18n="about.val1Title"></div>
+      <p class="value-desc" data-i18n="about.val1Desc"></p>
+    </div>
+    <div class="value-card fade-up">
+      <div class="value-num">02</div>
+      <div class="value-title" data-i18n="about.val2Title"></div>
+      <p class="value-desc" data-i18n="about.val2Desc"></p>
+    </div>
+    <div class="value-card fade-up">
+      <div class="value-num">03</div>
+      <div class="value-title" data-i18n="about.val3Title"></div>
+      <p class="value-desc" data-i18n="about.val3Desc"></p>
+    </div>
+    <div class="value-card fade-up">
+      <div class="value-num">04</div>
+      <div class="value-title" data-i18n="about.val4Title"></div>
+      <p class="value-desc" data-i18n="about.val4Desc"></p>
+    </div>
+  </div>
+</section>
+
+<!-- CERTIFICATIONS -->
+<section class="section section-light">
+  <div class="section-header fade-up" style="text-align:center">
+    <span class="label" data-i18n="about.certLabel"></span>
+  </div>
+  <div class="cert-list fade-up" style="max-width:700px;margin:1.5rem auto 0">
+    <div class="cert-item"><span class="cert-icon">✦</span><span data-i18n="about.cert1"></span></div>
+    <div class="cert-item"><span class="cert-icon">✦</span><span data-i18n="about.cert2"></span></div>
+    <div class="cert-item"><span class="cert-icon">✦</span><span data-i18n="about.cert3"></span></div>
+    <div class="cert-item"><span class="cert-icon">✦</span><span data-i18n="about.cert4"></span></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section section-dark" style="text-align:center;padding:5rem 2rem">
+  <div class="fade-up">
+    <div class="h-script" style="font-size:clamp(2.8rem,6vw,4.5rem)">Prêtes à vous rencontrer</div>
+    <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.1rem;color:rgba(255,255,255,.45);margin:1rem 0 2.5rem">Ottawa · Gatineau</p>
+    <a href="booking.html" class="btn btn-lg" data-i18n="nav.book"></a>
+  </div>
+</section>
+
+<footer class="footer" id="app-footer"></footer>
+
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/luxury.js"></script>
+<script>
+  const STYLIST_IMGS = {
+    aisha: 'https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=400',
+    maya:  'https://images.pexels.com/photos/1181695/pexels-photo-1181695.jpeg?auto=compress&cs=tinysrgb&w=400',
+    imani: 'https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg?auto=compress&cs=tinysrgb&w=400',
+  };
+
+  function renderTeam() {
+    const grid = document.getElementById('team-grid');
+    const lang = App.cap(App.lang);
+    grid.innerHTML = STYLISTS.map(st => `
+      <div class="stylist-card team-card fade-up">
+        <div class="team-img-wrap">
+          <img src="${STYLIST_IMGS[st.id] || ''}" alt="${st['name'+lang]}"
+               loading="lazy" onerror="this.style.display='none'"
+               style="width:100%;height:280px;object-fit:cover;object-position:top"/>
+          <div class="team-img-overlay">
+            <div class="stylist-avatar" style="background:var(--gold);color:var(--black);margin:0 auto 1rem">${st.initials}</div>
+          </div>
+        </div>
+        <div class="svc-card-body" style="text-align:center;padding:1.5rem">
+          <h3>${st['name'+lang].toUpperCase()}</h3>
+          <div class="role">${st['role'+lang]}</div>
+          <div class="specialty" style="margin-top:.5rem">${st['specialty'+lang]}</div>
+          <div class="rating" style="margin-top:.8rem;color:var(--gold)">★★★★★ ${st.rating.toFixed(1)}</div>
+          <div style="margin-top:1rem;display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center">
+            ${st.services.map(sid => {
+              const s = SERVICES.find(x => x.id === sid);
+              return s ? `<span style="font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.1em;background:var(--cream2);padding:3px 8px;border-radius:1px">${s['name'+lang]}</span>` : '';
+            }).join('')}
+          </div>
+          <a href="booking.html?stylist=${st.id}" class="btn btn-dark btn-sm" style="margin-top:1.2rem;align-self:center" data-i18n="services.book">${App.t('services.book')}</a>
+        </div>
+      </div>`).join('');
+  }
+
+  function onLangChange() { renderTeam(); }
+  document.addEventListener('DOMContentLoaded', renderTeam);
+</script>
+</body>
+</html>

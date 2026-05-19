@@ -95,6 +95,30 @@ const App = {
     return this.bookings.filter(b => b.userId === userId)
       .sort((a,b) => new Date(b.date+'T'+b.time) - new Date(a.date+'T'+a.time));
   },
+  cancelBooking(id) {
+    const bookings = this.bookings;
+    const i = bookings.findIndex(b => b.id === id);
+    if (i === -1) return { ok:false };
+    const b = bookings[i];
+    const apptDate = new Date(b.date + 'T' + b.time);
+    const hoursUntil = (apptDate - new Date()) / 36e5;
+    if (hoursUntil < 48) return { ok:false, tooLate:true };
+    bookings[i] = { ...b, status:'cancelled' };
+    this.bookings = bookings;
+    return { ok:true };
+  },
+  getLoyalty(userId) {
+    const completed = this.bookings.filter(b => b.userId === userId && b.status !== 'cancelled').length;
+    const levels = [
+      { min:0,  max:2,  key:'dash.loyaltyLevel0', next:3,  reward: this.lang==='fr'?'3 visites pour cliente régulière':'3 visits for regular client status' },
+      { min:3,  max:4,  key:'dash.loyaltyLevel1', next:5,  reward: this.lang==='fr'?'5e visite : -20% (offre fidélité)':'5th visit: -20% (loyalty offer)' },
+      { min:5,  max:9,  key:'dash.loyaltyLevel2', next:10, reward: this.lang==='fr'?'10e visite offerte !':'10th visit is free!' },
+      { min:10, max:999,key:'dash.loyaltyLevel3', next:null,reward: this.lang==='fr'?'Vous êtes une cliente Couronnée !':'You are a Crowned Client!' },
+    ];
+    const lvl = levels.find(l => completed >= l.min && completed <= l.max) || levels[0];
+    const pct = lvl.next ? Math.min(100, Math.round((completed - lvl.min) / (lvl.next - lvl.min) * 100)) : 100;
+    return { completed, level: this.t(lvl.key), reward: lvl.reward, pct, toNext: lvl.next ? lvl.next - completed : 0 };
+  },
   isSlotTaken(stylistId, date, time, duration) {
     const [th] = time.split(':').map(Number);
     const tStart = th * 60;
@@ -140,6 +164,7 @@ const App = {
         ${link('gallery.html','nav.gallery','gallery')}
         ${link('booking.html','nav.booking','booking')}
         ${link('promos.html','nav.promos','promos')}
+        ${link('about.html','nav.about','about')}
         ${link('faq.html','nav.faq','faq')}
         ${link('contact.html','nav.contact','contact')}
       </div>
@@ -183,6 +208,7 @@ const App = {
           <a href="gallery.html" data-i18n="nav.gallery">${this.t('nav.gallery')}</a>
           <a href="booking.html" data-i18n="nav.booking">${this.t('nav.booking')}</a>
           <a href="promos.html" data-i18n="nav.promos">${this.t('nav.promos')}</a>
+          <a href="about.html" data-i18n="nav.about">${this.t('nav.about')}</a>
           <a href="faq.html" data-i18n="nav.faq">${this.t('nav.faq')}</a>
           <a href="contact.html" data-i18n="nav.contact">${this.t('nav.contact')}</a>
         </div>
@@ -434,6 +460,18 @@ ${disc > 0 ? `<div class="row" style="color:#4caf50"><span class="k">${this.lang
       entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
     }, { threshold:0.12, rootMargin:'0px 0px -40px 0px' });
     document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+
+    // Cookie consent
+    if (!localStorage.getItem('hb_cookie')) {
+      const bar = document.createElement('div');
+      bar.id = 'cookie-bar';
+      bar.innerHTML = `<span>${this.t('cookie.text')}</span>
+        <button id="ck-accept" class="btn btn-sm">${this.t('cookie.accept')}</button>
+        <button id="ck-decline" class="btn btn-outline btn-sm">${this.t('cookie.decline')}</button>`;
+      document.body.appendChild(bar);
+      document.getElementById('ck-accept').onclick = () => { localStorage.setItem('hb_cookie','1'); bar.remove(); };
+      document.getElementById('ck-decline').onclick = () => { localStorage.setItem('hb_cookie','0'); bar.remove(); };
+    }
   }
 };
 

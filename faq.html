@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>FAQ — Halo Braids</title>
-  <meta name="description" content="Questions fréquentes sur nos services de tressage : durée, extensions, annulations, préparation des cheveux — Halo Braids Ottawa."/>
+  <meta name="description" content="Questions fréquentes sur nos services de tressage : durée, extensions, annulations, préparation — Halo Braids Ottawa-Gatineau."/>
   <meta name="theme-color" content="#0c0806"/>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -25,35 +25,23 @@
 </section>
 
 <section class="section section-light">
-  <div class="faq-list">
-    <details open>
-      <summary data-i18n="faq.q1"></summary>
-      <p data-i18n="faq.a1"></p>
-    </details>
-    <details>
-      <summary data-i18n="faq.q2"></summary>
-      <p data-i18n="faq.a2"></p>
-    </details>
-    <details>
-      <summary data-i18n="faq.q3"></summary>
-      <p data-i18n="faq.a3"></p>
-    </details>
-    <details>
-      <summary data-i18n="faq.q4"></summary>
-      <p data-i18n="faq.a4"></p>
-    </details>
-    <details>
-      <summary data-i18n="faq.q5"></summary>
-      <p data-i18n="faq.a5"></p>
-    </details>
-    <details>
-      <summary data-i18n="faq.q6"></summary>
-      <p data-i18n="faq.a6"></p>
-    </details>
-  </div>
+  <div class="faq-wrap">
 
-  <div class="text-center mt-3">
-    <a href="booking.html" class="btn btn-dark btn-lg" data-i18n="nav.book"></a>
+    <!-- Category tabs -->
+    <div class="faq-tabs" id="faq-tabs"></div>
+
+    <!-- FAQ list -->
+    <div class="faq-list" id="faq-list"></div>
+
+    <div class="text-center mt-3" style="padding-top:1rem">
+      <p style="font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--muted);margin-bottom:1.5rem">
+        <span data-i18n="faq.stillQuestion"></span>
+        <a href="contact.html" style="color:var(--gold)">contact.html</a>
+        <span data-i18n="faq.orWhatsapp"></span>
+        <a href="https://wa.me/16135550199" target="_blank" rel="noopener" style="color:var(--gold)">WhatsApp</a>.
+      </p>
+      <a href="booking.html" class="btn btn-dark btn-lg" data-i18n="nav.book"></a>
+    </div>
   </div>
 </section>
 
@@ -62,5 +50,75 @@
 <script src="assets/data.js"></script>
 <script src="assets/app.js"></script>
 <script src="assets/luxury.js"></script>
+<script>
+  const FAQ_DATA = {
+    booking: [1,2,7,8,13,14],
+    hair:    [5,9],
+    care:    [3,10,11],
+    studio:  [4,6,12],
+  };
+
+  let activeTab = 'booking';
+
+  function renderFaqTabs() {
+    const tabs = document.getElementById('faq-tabs');
+    const cats = Object.keys(FAQ_DATA);
+    tabs.innerHTML = cats.map(c => `
+      <button class="faq-tab${c === activeTab ? ' active' : ''}" data-cat="${c}" data-i18n="faq.cat.${c}">
+        ${App.t('faq.cat.' + c)}
+      </button>`).join('');
+    tabs.querySelectorAll('.faq-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeTab = btn.dataset.cat;
+        renderFaqTabs();
+        renderFaqList();
+      });
+    });
+  }
+
+  function renderFaqList() {
+    const list = document.getElementById('faq-list');
+    const qs = FAQ_DATA[activeTab] || [];
+    list.innerHTML = qs.map((n, i) => `
+      <div class="faq-item${i === 0 ? ' open' : ''}" data-n="${n}">
+        <button class="faq-q" aria-expanded="${i === 0}">
+          <span data-i18n="faq.q${n}">${App.t('faq.q'+n)}</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a">
+          <p data-i18n="faq.a${n}">${App.t('faq.a'+n)}</p>
+        </div>
+      </div>`).join('');
+
+    list.querySelectorAll('.faq-q').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('.faq-item');
+        const isOpen = item.classList.contains('open');
+        list.querySelectorAll('.faq-item').forEach(el => {
+          el.classList.remove('open');
+          el.querySelector('.faq-q').setAttribute('aria-expanded', 'false');
+        });
+        if (!isOpen) {
+          item.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+  }
+
+  // Add missing i18n keys for the contact note
+  if (!I18N.fr['faq.stillQuestion']) {
+    I18N.fr['faq.stillQuestion'] = 'Une autre question ? Écrivez-nous sur ';
+    I18N.fr['faq.orWhatsapp']    = ' ou via ';
+    I18N.en['faq.stillQuestion'] = 'Still have questions? Write to us at ';
+    I18N.en['faq.orWhatsapp']    = ' or via ';
+  }
+
+  function onLangChange() { renderFaqTabs(); renderFaqList(); }
+  document.addEventListener('DOMContentLoaded', () => {
+    renderFaqTabs();
+    renderFaqList();
+  });
+</script>
 </body>
 </html>
