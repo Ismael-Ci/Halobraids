@@ -407,7 +407,7 @@ Luxury Braiding Studio · Ottawa · Gatineau`;
   <div>
     <div style="font-size:.7rem;letter-spacing:.2em;color:#888;margin-bottom:6px">${this.lang==='fr'?'FACTURE / REÇU':'INVOICE / RECEIPT'}</div>
     <div style="font-size:.85rem"><strong>#${booking.id.toUpperCase()}</strong></div>
-    <div style="font-size:.78rem;color:#888;margin-top:4px">${this.lang==='fr'?'Émise le':'Issued':'Issued'} ${issued}</div>
+    <div style="font-size:.78rem;color:#888;margin-top:4px">${this.lang==='fr'?'Émise le':'Issued'} ${issued}</div>
   </div>
   <div style="text-align:right">
     <div style="font-size:.78rem;color:#888">${user.firstname} ${user.lastname}</div>
