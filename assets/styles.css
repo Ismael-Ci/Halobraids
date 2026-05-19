@@ -192,30 +192,30 @@ body { background:var(--cream); color:var(--text); font-family:'Jost',sans-serif
                 max-width:1000px; margin-left:auto; margin-right:auto; }
 
 /* Calendar */
-.cal { max-width:520px; margin:0 auto; background:var(--cream); border:1px solid var(--border);
-       padding:1.5rem; border-radius:var(--radius); }
-.cal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; }
-.cal-header h3 { font-family:'Cinzel',serif; font-size:.85rem; letter-spacing:.2em; color:var(--text); }
-.cal-nav { background:transparent; border:1px solid var(--border); width:34px; height:34px;
-           cursor:pointer; color:var(--gold-dark); font-size:1.2rem; transition:.2s; }
-.cal-nav:hover { background:var(--gold); color:var(--black); }
-.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
-.cal-dow { text-align:center; font-family:'Cinzel',serif; font-size:.62rem; letter-spacing:.15em;
-           color:var(--muted); padding:.6rem 0; }
-.cal-day { aspect-ratio:1; display:flex; align-items:center; justify-content:center;
-           font-family:'Cormorant Garamond',serif; font-size:1rem; cursor:pointer;
-           border-radius:var(--radius); transition:.2s; color:var(--text); }
-.cal-day:hover:not(.disabled) { background:var(--gold-lt); }
+.cal { width:100%; background:var(--cream); border:1px solid var(--border);
+       padding:1.4rem; border-radius:var(--radius); box-sizing:border-box; }
+.cal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem; }
+.cal-header h3 { font-family:'Cinzel',serif; font-size:.82rem; letter-spacing:.22em; color:var(--text); }
+.cal-nav { background:transparent; border:1px solid var(--border); width:32px; height:32px;
+           cursor:pointer; color:var(--gold-dark); font-size:1.1rem; transition:.2s; flex-shrink:0; }
+.cal-nav:hover { background:var(--gold); color:var(--black); border-color:var(--gold); }
+.cal-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:3px; width:100%; }
+.cal-dow { text-align:center; font-family:'Cinzel',serif; font-size:.55rem; letter-spacing:.12em;
+           color:var(--muted); padding:.5rem 0; overflow:hidden; }
+.cal-day { height:2.6rem; display:flex; align-items:center; justify-content:center;
+           font-family:'Cormorant Garamond',serif; font-size:.95rem; cursor:pointer;
+           border-radius:2px; transition:background .15s,color .15s; color:var(--text); min-width:0; }
+.cal-day:hover:not(.disabled):not(.selected) { background:rgba(201,169,110,.18); color:var(--gold-dark); }
 .cal-day.disabled { color:var(--border); cursor:not-allowed; }
-.cal-day.today { background:var(--cream2); font-weight:600; }
-.cal-day.selected { background:var(--gold); color:var(--black); font-weight:600; }
+.cal-day.today { background:var(--cream2); font-weight:600; outline:1px solid var(--gold-lt); }
+.cal-day.selected { background:var(--gold); color:var(--black); font-weight:700; border-radius:2px; }
 .cal-day.empty { cursor:default; }
 
 /* Time slots */
-.slots-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.8rem; max-width:600px; margin:2rem auto 0; }
-.slot { padding:1rem .8rem; background:#fff; border:1px solid var(--border);
+.slots-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(76px,1fr)); gap:.6rem; }
+.slot { padding:.7rem .4rem; background:#fff; border:1px solid var(--border);
         text-align:center; cursor:pointer; transition:.2s; font-family:'Cinzel',serif;
-        font-size:.78rem; letter-spacing:.1em; color:var(--text); }
+        font-size:.72rem; letter-spacing:.08em; color:var(--text); border-radius:2px; }
 .slot:hover:not(.disabled) { border-color:var(--gold); }
 .slot.selected { background:var(--gold); color:var(--black); border-color:var(--gold); font-weight:600; }
 .slot.disabled { color:var(--border); cursor:not-allowed; text-decoration:line-through; background:#fafafa; }
@@ -598,6 +598,14 @@ details p { font-family:'Cormorant Garamond',serif; font-size:1.05rem; color:var
   position:relative; z-index:1;
   font-family:'Cinzel',serif; font-size:.62rem; letter-spacing:.28em;
   color:rgba(201,169,110,.65);
+}
+
+/* Booking step 3 */
+.step3-layout { display:grid; grid-template-columns:1.1fr 1fr; gap:3rem; max-width:1020px; margin:0 auto; align-items:start; }
+.step3-cal { min-width:0; }
+.step3-slots { min-width:0; }
+@media (max-width:768px) {
+  .step3-layout { grid-template-columns:1fr; gap:2rem; }
 }
 
 /* Gallery item images */
