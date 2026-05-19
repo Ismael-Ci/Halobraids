@@ -335,7 +335,7 @@ Date     : ${dateDisp}
 Heure    : ${booking.time}
 Durée    : ${svc ? svc.duration : booking.duration}h
 Prix estimé : à partir de ${final} $${disc > 0 ? ` (inclus ${disc}% de réduction anticipée)` : ''}
-Acompte  : 50 $ (requis le jour du rendez-vous)
+Acompte  : 20 $ (requis le jour du rendez-vous)
 ━━━━━━━━━━━━━━━━━━━━
 
 📍 Studio Halo Braids — Ottawa, ON & Gatineau, QC
@@ -481,7 +481,7 @@ Luxury Braiding Studio · Ottawa · Gatineau`;
 <div class="row"><span class="k">${this.lang==='fr'?'Prix de base':'Base price'}</span><span>${base} $</span></div>
 ${disc > 0 ? `<div class="row" style="color:#4caf50"><span class="k">${this.lang==='fr'?`Réduction anticipée (${disc}%)`:`Advance discount (${disc}%)`}</span><span>− ${discAmt} $</span></div>` : ''}
 <div class="row total"><span>${this.lang==='fr'?'TOTAL ESTIMÉ':'ESTIMATED TOTAL'}</span><span class="gold">${final} $</span></div>
-<div class="row"><span class="k">${this.lang==='fr'?'Acompte (non remboursable)':'Deposit (non-refundable)'}</span><span>50 $</span></div>
+<div class="row"><span class="k">${this.lang==='fr'?'Acompte (non remboursable)':'Deposit (non-refundable)'}</span><span>20 $</span></div>
 <p class="note">* ${this.lang==='fr'?'Le prix final peut varier selon la longueur, la densité et les options choisies.':'Final price may vary based on length, density, and chosen options.'}</p>
 <div class="footer-inv">
   <strong>Halo Braids</strong><br>

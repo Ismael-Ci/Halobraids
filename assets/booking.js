@@ -240,7 +240,7 @@ const Booking = {
       </div>` : ''}
       <div class="summary-total">
         <span class="k">${App.t('booking.deposit')}</span>
-        <span class="v">50 $</span>
+        <span class="v">20 $</span>
       </div>
       <div class="summary-info-box">
         <div class="summary-info-item">
@@ -263,7 +263,7 @@ const Booking = {
         </div>
         <div class="payment-row">
           <span class="payment-key">${App.t('payment.deposit')}</span>
-          <span class="payment-val"><strong>50 $</strong> — ${App.lang==='fr'?'non remboursable':'non-refundable'}</span>
+          <span class="payment-val"><strong>20 $</strong> — ${App.lang==='fr'?'non remboursable':'non-refundable'}</span>
         </div>
         <div class="payment-row" style="font-size:.82rem;color:var(--muted);padding-top:.2rem">
           <span></span>
@@ -432,7 +432,7 @@ const Booking = {
           <div class="cr-row"><span>${App.t('booking.time')}</span><span>${booking.time}</span></div>
           ${disc > 0 ? `<div class="cr-row" style="color:#4caf50"><span>${App.t('booking.discount')}</span><span>−${Math.round(base*disc/100)} $</span></div>` : ''}
           <div class="cr-row cr-total"><span>${App.t('booking.finalPrice')}</span><span>${final} $</span></div>
-          <div class="cr-row" style="font-size:.8rem;color:var(--muted)"><span>${App.t('booking.deposit')}</span><span>50 $</span></div>
+          <div class="cr-row" style="font-size:.8rem;color:var(--muted)"><span>${App.t('booking.deposit')}</span><span>20 $</span></div>
         </div>`;
     }
 
