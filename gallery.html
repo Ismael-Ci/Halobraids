@@ -26,16 +26,6 @@
 
 <section class="section section-light">
 
-  <div class="gallery-filters">
-    <button class="gf-btn active" data-cat="all">Tous / All</button>
-    <button class="gf-btn" data-cat="knotless">Knotless</button>
-    <button class="gf-btn" data-cat="boho">Boho</button>
-    <button class="gf-btn" data-cat="fulani">Fulani</button>
-    <button class="gf-btn" data-cat="passion">Passion Twists</button>
-    <button class="gf-btn" data-cat="goddess">Goddess Locs</button>
-    <button class="gf-btn" data-cat="cornrows">Cornrows</button>
-  </div>
-
   <div class="gallery-grid" id="gallery-grid">
 
     <!-- KNOTLESS BRAIDS -->
@@ -147,18 +137,6 @@
   </div>
 </section>
 
-<script>
-  document.querySelectorAll('.gf-btn').forEach(btn => {
-    btn.onclick = () => {
-      document.querySelectorAll('.gf-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const cat = btn.dataset.cat;
-      document.querySelectorAll('.gallery-item').forEach(item => {
-        item.style.display = (cat === 'all' || item.dataset.cat === cat) ? '' : 'none';
-      });
-    };
-  });
-</script>
 
 <footer class="footer" id="app-footer"></footer>
 
