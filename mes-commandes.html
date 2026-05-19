@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Mes Commandes — Halo Braids</title>
+  <meta name="description" content="Suivez vos réservations Halo Braids. Entrez votre prénom et téléphone pour retrouver toutes vos commandes."/>
+  <meta name="theme-color" content="#0c0806"/>
+  <meta name="robots" content="noindex"/>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Cinzel:wght@400;500;600&family=Great+Vibes&family=Jost:wght@200;300;400&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="assets/styles.css"/>
+</head>
+<body data-page="orders">
+
+<nav class="nav solid" id="app-nav"></nav>
+
+<section class="banner">
+  <div class="banner-bg"></div>
+  <div class="banner-content">
+    <h1 data-i18n="orders.banner"></h1>
+    <div class="h-script" data-i18n="orders.subtitle"></div>
+  </div>
+</section>
+
+<section class="section section-light">
+  <div class="orders-wrap">
+
+    <!-- Lookup form -->
+    <div class="orders-lookup-card fade-up" id="lookup-card">
+      <div class="orders-lookup-icon">🔍</div>
+      <div class="h-script" style="font-size:2.5rem;margin:.3rem 0" data-i18n="orders.formTitle"></div>
+      <p class="orders-lookup-desc" data-i18n="orders.formDesc"></p>
+
+      <form id="lookup-form" class="orders-form">
+        <div class="orders-form-grid">
+          <div>
+            <label data-i18n="orders.firstname"></label>
+            <input type="text" id="o-firstname" autocomplete="given-name" required/>
+          </div>
+          <div>
+            <label data-i18n="orders.phone"></label>
+            <input type="tel" id="o-phone" autocomplete="tel" placeholder="+1 (613)" required/>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-dark" style="width:100%;margin-top:1rem" data-i18n="orders.submit"></button>
+      </form>
+
+      <p style="font-family:'Cormorant Garamond',serif;font-size:.88rem;color:var(--muted);margin-top:1.2rem;text-align:center">
+        <a href="booking.html" style="color:var(--gold)" data-i18n="nav.booking"></a>
+        · <a href="account.html" style="color:var(--gold)" data-i18n="account.login"></a>
+      </p>
+    </div>
+
+    <!-- Results -->
+    <div id="orders-results" class="hidden"></div>
+
+  </div>
+</section>
+
+<footer class="footer" id="app-footer"></footer>
+
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/luxury.js"></script>
+<script>
+  // If logged-in user, pre-fill and auto-search
+  document.addEventListener('DOMContentLoaded', () => {
+    App.applyTranslations();
+    const cu = App.currentUser;
+    if (cu) {
+      const fi = document.getElementById('o-firstname');
+      const ph = document.getElementById('o-phone');
+      if (fi) fi.value = cu.firstname;
+      if (ph && cu.phone) ph.value = cu.phone;
+      if (cu.firstname && cu.phone) performLookup(cu.firstname, cu.phone);
+    }
+  });
+
+  document.getElementById('lookup-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const fn = document.getElementById('o-firstname').value.trim();
+    const ph = document.getElementById('o-phone').value.trim();
+    if (!fn || !ph) return;
+    performLookup(fn, ph);
+  });
+
+  function performLookup(firstname, phone) {
+    const { profile, bookings } = App.lookupOrders(firstname, phone);
+    const res = document.getElementById('orders-results');
+    res.classList.remove('hidden');
+
+    if (!profile) {
+      res.innerHTML = `
+        <div class="orders-empty fade-up">
+          <div style="font-size:2.5rem;margin-bottom:1rem">🔍</div>
+          <p>${App.t('orders.empty')}</p>
+          <a href="booking.html" class="btn btn-dark" style="margin-top:1.5rem">${App.t('nav.booking')}</a>
+        </div>`;
+      return;
+    }
+
+    const now = new Date();
+    const since = new Date(profile.created);
+    const sinceStr = since.toLocaleDateString(App.lang === 'fr' ? 'fr-CA' : 'en-CA', { year:'numeric', month:'long' });
+
+    const upcoming = bookings.filter(b => b.status !== 'cancelled' && new Date(b.date+'T'+b.time) >= now);
+    const past     = bookings.filter(b => b.status === 'cancelled' || new Date(b.date+'T'+b.time) < now);
+
+    res.innerHTML = `
+      <!-- Profile card -->
+      <div class="orders-profile-card fade-up">
+        <div class="orders-profile-avatar">${profile.firstname.charAt(0).toUpperCase()}</div>
+        <div class="orders-profile-info">
+          <div class="orders-profile-name">${profile.firstname} ${profile.lastname}</div>
+          <div class="orders-profile-meta">
+            <span class="orders-ref-chip">
+              <span style="opacity:.6">${App.t('orders.profileRef')}</span>
+              <strong>${profile.ref}</strong>
+            </span>
+            <span class="orders-ref-chip">
+              <span style="opacity:.6">${App.t('orders.profileSince')}</span>
+              <strong>${sinceStr}</strong>
+            </span>
+            <span class="orders-ref-chip">
+              <strong>${bookings.length}</strong>&nbsp;${App.t('orders.total')}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      ${upcoming.length > 0 ? `
+      <h2 class="orders-section-title" data-i18n="dash.upcoming">${App.t('dash.upcoming')}</h2>
+      <div class="orders-list" id="upcoming-orders">
+        ${upcoming.map(b => renderOrderCard(b, false, now)).join('')}
+      </div>` : ''}
+
+      ${past.length > 0 ? `
+      <h2 class="orders-section-title" data-i18n="dash.past">${App.t('dash.past')}</h2>
+      <div class="orders-list">
+        ${past.map(b => renderOrderCard(b, true, now)).join('')}
+      </div>` : ''}
+
+      ${bookings.length === 0 ? `
+      <div class="orders-empty">
+        <p>${App.t('dash.empty')}</p>
+        <a href="booking.html" class="btn btn-dark" style="margin-top:1rem">${App.t('nav.booking')}</a>
+      </div>` : ''}
+
+      <div class="orders-account-nudge fade-up">
+        <span data-i18n="orders.noAccount">${App.t('orders.noAccount')}</span>
+        <a href="account.html" class="btn btn-outline btn-sm" data-i18n="orders.createAccount">${App.t('orders.createAccount')}</a>
+      </div>`;
+
+    // Wire cancel buttons
+    res.querySelectorAll('[data-cancel-booking]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.cancelBooking;
+        const result = App.cancelBooking(id);
+        if (result.tooLate) {
+          App.toast(App.t('orders.cancelTooLate'), 'error');
+        } else if (result.ok) {
+          App.toast(App.t('orders.cancelDone'), 'success');
+          performLookup(firstname, phone);
+        }
+      });
+    });
+  }
+
+  function renderOrderCard(b, isPast, now) {
+    const s = SERVICES.find(x => x.id === b.serviceId);
+    const st = STYLISTS.find(x => x.id === b.stylistId);
+    const [yy, mm, dd] = b.date.split('-').map(Number);
+    const monthShort = App.t('monthShort.' + (mm - 1));
+    const isCancelled = b.status === 'cancelled';
+    const hoursUntil = (new Date(b.date + 'T' + b.time) - now) / 36e5;
+    const canCancel = !isPast && !isCancelled && hoursUntil >= 48;
+    const disc = b.discountPct || 0;
+    const finalPrice = b.price - Math.round(b.price * disc / 100);
+
+    const statusKey = isCancelled ? 'orders.status.cancelled'
+                    : isPast      ? 'orders.status.completed'
+                    :               'orders.status.confirmed';
+    const statusClass = isCancelled ? 'cancelled' : isPast ? 'past' : '';
+
+    return `
+      <div class="order-card ${isCancelled ? 'cancelled' : ''}">
+        <div class="order-card-left">
+          <div class="booking-badge ${statusClass}">
+            <div class="day">${dd}</div>
+            <div class="mo">${monthShort}</div>
+          </div>
+        </div>
+        <div class="order-card-body">
+          <div class="order-card-top">
+            <div>
+              <h4>${s ? s['name'+App.cap(App.lang)].toUpperCase() : b.serviceId}</h4>
+              <p>${App.t('booking.stylist')}: <strong>${st ? st['name'+App.cap(App.lang)] : '—'}</strong> · ${b.time} · ${b.duration}h</p>
+              <p style="color:var(--gold);margin-top:.2rem">
+                ${finalPrice} $${disc > 0 ? ` <span class="disc-badge">−${disc}%</span>` : ''}
+              </p>
+            </div>
+            <div class="order-card-right">
+              <div class="booking-status ${statusClass}">${App.t(statusKey)}</div>
+              ${b.ref ? `<div class="order-ref-tag">HB: <strong>${b.ref}</strong></div>` : ''}
+            </div>
+          </div>
+          ${canCancel ? `<button class="btn btn-outline btn-sm" style="margin-top:.8rem;font-size:.6rem" data-cancel-booking="${b.id}">${App.t('orders.cancel')}</button>` : ''}
+          ${!isPast && !isCancelled && hoursUntil < 48 ? `<p style="font-size:.75rem;color:var(--muted);margin-top:.5rem;font-family:'Cormorant Garamond',serif">${App.t('orders.cancelTooLate')}</p>` : ''}
+        </div>
+      </div>`;
+  }
+
+  function onLangChange() {
+    const fn = (document.getElementById('o-firstname') || {}).value || '';
+    const ph = (document.getElementById('o-phone') || {}).value || '';
+    if (fn && ph) performLookup(fn, ph);
+  }
+</script>
+</body>
+</html>

@@ -1152,6 +1152,186 @@ details p { font-family:'Cormorant Garamond',serif; font-size:1.05rem; color:var
 .booking-badge.past { background:var(--text); }
 .booking-status.cancelled { color:var(--red); border-color:var(--red); }
 
+/* ════════ PAYMENT CARD ════════ */
+.payment-card {
+  background:#fff; border:1px solid var(--border);
+  padding:1.6rem; border-left:3px solid var(--gold);
+  display:flex; flex-direction:column; gap:.5rem;
+}
+.payment-card-title {
+  font-family:'Cinzel',serif; font-size:.75rem; letter-spacing:.22em;
+  color:var(--gold-dark); display:flex; align-items:center; gap:.6rem;
+  margin-bottom:.5rem;
+}
+.payment-row {
+  display:flex; justify-content:space-between; align-items:baseline;
+  gap:1rem; padding:.45rem 0; border-bottom:1px solid var(--cream2);
+  font-family:'Cormorant Garamond',serif; font-size:.98rem;
+}
+.payment-row:last-of-type { border-bottom:none; }
+.payment-key {
+  font-family:'Cinzel',serif; font-size:.65rem;
+  letter-spacing:.18em; color:var(--muted); flex-shrink:0;
+}
+.payment-val { color:var(--text); text-align:right; }
+.payment-divider { height:1px; background:var(--border); margin:.5rem 0; }
+.payment-methods-label {
+  font-family:'Cinzel',serif; font-size:.62rem;
+  letter-spacing:.22em; color:var(--muted); margin-bottom:.4rem;
+}
+.payment-methods { display:flex; flex-wrap:wrap; gap:.5rem; }
+.payment-method {
+  font-family:'Cormorant Garamond',serif; font-size:.92rem; color:var(--text);
+  background:var(--cream2); padding:.35rem .75rem; border-radius:2px;
+}
+.payment-etransfer {
+  font-family:'Cormorant Garamond',serif; font-size:.88rem;
+  color:var(--gold-dark); margin-top:.4rem;
+}
+.payment-note {
+  font-family:'Cormorant Garamond',serif; font-style:italic;
+  font-size:.8rem; color:var(--muted); margin-top:.5rem;
+}
+
+/* ════════ GUEST SECTION (booking step 4) ════════ */
+.guest-section {
+  background:#fff8f0; border:1px solid rgba(201,169,110,.35);
+  padding:1.5rem; border-radius:var(--radius);
+}
+.guest-section-title {
+  font-family:'Cinzel',serif; font-size:.78rem; letter-spacing:.2em;
+  color:var(--gold-dark); display:flex; align-items:center; gap:.6rem;
+  margin-bottom:.4rem;
+}
+.guest-section-sub {
+  font-family:'Cormorant Garamond',serif; font-size:.95rem;
+  color:var(--muted); margin-bottom:1rem;
+}
+.guest-grid { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
+.guest-grid label {
+  display:block; font-family:'Cinzel',serif; font-size:.65rem;
+  letter-spacing:.18em; color:var(--muted); margin-bottom:.3rem;
+}
+.guest-grid input {
+  width:100%; padding:.75rem .9rem; border:1px solid var(--border);
+  background:#fff; font-family:'Cormorant Garamond',serif; font-size:1rem;
+  color:var(--text); outline:none; transition:border-color .2s;
+}
+.guest-grid input:focus { border-color:var(--gold); }
+.guest-section-or {
+  font-family:'Cormorant Garamond',serif; font-size:.9rem;
+  color:var(--muted); margin-top:.9rem; text-align:center;
+}
+.guest-section-or a { color:var(--gold); }
+
+/* ════════ BOOKING REF HERO (step 5) ════════ */
+.booking-ref-hero {
+  background:var(--black); border-radius:var(--radius);
+  padding:1.6rem 2rem; text-align:center; width:100%;
+  max-width:480px; margin:0 auto 1.5rem;
+}
+.booking-ref-label {
+  font-family:'Cinzel',serif; font-size:.6rem;
+  letter-spacing:.3em; color:rgba(201,169,110,.6); margin-bottom:.3rem;
+}
+.booking-ref-code {
+  font-family:'Cinzel',serif; font-size:1.5rem;
+  letter-spacing:.25em; color:var(--gold); word-break:break-all;
+}
+
+/* ════════ MES COMMANDES PAGE ════════ */
+.orders-wrap { max-width:860px; margin:0 auto; }
+
+.orders-lookup-card {
+  max-width:560px; margin:0 auto; text-align:center;
+  background:#fff; border:1px solid var(--border); padding:2.5rem 2rem;
+}
+.orders-lookup-icon { font-size:2.5rem; margin-bottom:.5rem; }
+.orders-lookup-desc {
+  font-family:'Cormorant Garamond',serif; font-size:1rem;
+  color:var(--muted); margin:.5rem 0 1.5rem; line-height:1.7;
+}
+.orders-form { text-align:left; }
+.orders-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
+.orders-form label {
+  display:block; font-family:'Cinzel',serif; font-size:.65rem;
+  letter-spacing:.18em; color:var(--muted); margin-bottom:.3rem;
+}
+.orders-form input {
+  width:100%; padding:.8rem 1rem; border:1px solid var(--border);
+  background:#fff; font-family:'Cormorant Garamond',serif; font-size:1rem;
+  color:var(--text); outline:none; transition:border-color .2s;
+}
+.orders-form input:focus { border-color:var(--gold); }
+
+/* Profile card */
+.orders-profile-card {
+  display:flex; align-items:center; gap:1.5rem;
+  background:var(--black); color:#fff;
+  padding:1.5rem 2rem; margin-bottom:2rem; border-radius:var(--radius);
+}
+.orders-profile-avatar {
+  width:56px; height:56px; border-radius:50%; background:var(--gold);
+  color:var(--black); display:flex; align-items:center; justify-content:center;
+  font-family:'Cinzel',serif; font-size:1.4rem; font-weight:600; flex-shrink:0;
+}
+.orders-profile-name {
+  font-family:'Cinzel',serif; font-size:1rem; letter-spacing:.12em;
+  color:#fff; margin-bottom:.5rem;
+}
+.orders-profile-meta { display:flex; flex-wrap:wrap; gap:.5rem; }
+.orders-ref-chip {
+  display:inline-flex; align-items:center; gap:.4rem;
+  background:rgba(201,169,110,.12); border:1px solid rgba(201,169,110,.2);
+  font-family:'Cinzel',serif; font-size:.6rem; letter-spacing:.12em;
+  padding:.3rem .7rem; color:var(--gold-lt);
+}
+
+/* Section titles */
+.orders-section-title {
+  font-family:'Cinzel',serif; font-size:.82rem; letter-spacing:.22em;
+  color:var(--text); padding-bottom:.6rem; border-bottom:1px solid var(--border);
+  margin:2rem 0 1rem;
+}
+
+/* Order cards */
+.orders-list { display:flex; flex-direction:column; gap:.8rem; margin-bottom:1rem; }
+.order-card {
+  background:#fff; border:1px solid var(--border);
+  display:flex; gap:1.2rem; padding:1.2rem 1.5rem; align-items:flex-start;
+  transition:border-color .2s;
+}
+.order-card:hover { border-color:var(--gold-lt); }
+.order-card.cancelled { opacity:.6; }
+.order-card-left { flex-shrink:0; }
+.order-card-body { flex:1; min-width:0; }
+.order-card-top { display:flex; justify-content:space-between; gap:1rem; align-items:flex-start; }
+.order-card-body h4 {
+  font-family:'Cinzel',serif; font-size:.78rem; letter-spacing:.15em;
+  color:var(--text); margin-bottom:.3rem;
+}
+.order-card-body p { font-size:.85rem; color:var(--muted); line-height:1.5; }
+.order-card-right { text-align:right; flex-shrink:0; display:flex; flex-direction:column; gap:.4rem; align-items:flex-end; }
+.order-ref-tag {
+  font-family:'Cinzel',serif; font-size:.58rem; letter-spacing:.12em;
+  color:var(--muted); background:var(--cream2); padding:.25rem .6rem;
+}
+
+/* Empty state */
+.orders-empty {
+  text-align:center; padding:3rem 1rem;
+  font-family:'Cormorant Garamond',serif; color:var(--muted); font-size:1.05rem;
+}
+
+/* Account nudge */
+.orders-account-nudge {
+  display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:1rem;
+  background:var(--cream2); border:1px solid var(--border);
+  padding:1rem 1.5rem; margin-top:2.5rem;
+  font-family:'Cormorant Garamond',serif; font-size:.98rem; color:var(--muted);
+}
+
 /* ════════ EXTRA RESPONSIVE ════════ */
 @media (max-width:768px) {
   .loyalty-card { flex-direction:column; gap:1.5rem; text-align:center; }
@@ -1165,4 +1345,11 @@ details p { font-family:'Cormorant Garamond',serif; font-size:1.05rem; color:var
   .grid-4 { grid-template-columns:repeat(2,1fr); }
   .about-story-grid { gap:2.5rem !important; }
   #cookie-bar { font-size:.82rem; gap:1rem; flex-direction:column; text-align:center; }
+  .guest-grid { grid-template-columns:1fr; }
+  .orders-form-grid { grid-template-columns:1fr; }
+  .orders-profile-card { flex-direction:column; text-align:center; gap:1rem; }
+  .order-card-top { flex-direction:column; }
+  .order-card-right { align-items:flex-start; text-align:left; }
+  .orders-account-nudge { flex-direction:column; text-align:center; }
+  .booking-ref-code { font-size:1.15rem; letter-spacing:.18em; }
 }

@@ -194,9 +194,7 @@ const Booking = {
     const st = this.state.stylist;
     const [yy, mm, dd] = this.state.date.split('-').map(Number);
     const dateDisplay = `${dd} ${App.t('month.'+(mm-1))} ${yy}`;
-    const deposit = 50;
 
-    // Early booking discount
     const disc = App.earlyDiscount(this.state.date);
     const base = s.price;
     const discAmt = Math.round(base * disc.pct / 100);
@@ -256,16 +254,63 @@ const Booking = {
       </div>
     `;
 
+    // Payment modalities card
+    document.getElementById('payment-card').innerHTML = `
+      <div class="payment-card">
+        <div class="payment-card-title">
+          <span style="font-size:1.1rem">💳</span>
+          ${App.t('payment.title')}
+        </div>
+        <div class="payment-row">
+          <span class="payment-key">${App.t('payment.deposit')}</span>
+          <span class="payment-val"><strong>50 $</strong> — ${App.lang==='fr'?'non remboursable':'non-refundable'}</span>
+        </div>
+        <div class="payment-row" style="font-size:.82rem;color:var(--muted);padding-top:.2rem">
+          <span></span>
+          <span>${App.t('payment.depositNote')}</span>
+        </div>
+        <div class="payment-row">
+          <span class="payment-key">${App.t('payment.balance')}</span>
+          <span class="payment-val">${App.t('payment.balanceText')}</span>
+        </div>
+        <div class="payment-divider"></div>
+        <div class="payment-methods-label">${App.t('payment.methods')}</div>
+        <div class="payment-methods">
+          <div class="payment-method">💵 ${App.t('payment.cash')}</div>
+          <div class="payment-method">🏦 ${App.t('payment.etransfer')}</div>
+          <div class="payment-method">💳 ${App.t('payment.card')}</div>
+        </div>
+        <div class="payment-etransfer">✉️ ${App.t('payment.etransferTo')}</div>
+        <p class="payment-note">${App.t('payment.note')}</p>
+      </div>`;
+
+    // Guest form or logged-in display
+    const cu = App.currentUser;
+    const guestSection = document.getElementById('guest-section');
     const authNeeded = document.getElementById('auth-needed');
     const confirmBtn = document.getElementById('btn-confirm');
-    if (!App.currentUser) {
-      authNeeded.classList.remove('hidden');
-      confirmBtn.disabled = true; confirmBtn.style.opacity = '.4';
-      confirmBtn.style.pointerEvents = 'none';
-    } else {
+
+    if (cu) {
+      guestSection.classList.add('hidden');
       authNeeded.classList.add('hidden');
-      confirmBtn.disabled = false; confirmBtn.style.opacity = '';
-      confirmBtn.style.pointerEvents = '';
+      confirmBtn.disabled = false; confirmBtn.style.opacity = ''; confirmBtn.style.pointerEvents = '';
+    } else {
+      guestSection.classList.remove('hidden');
+      authNeeded.classList.add('hidden');
+      confirmBtn.disabled = false; confirmBtn.style.opacity = ''; confirmBtn.style.pointerEvents = '';
+      this._updateGuestConfirmBtn();
+    }
+  },
+
+  _updateGuestConfirmBtn() {
+    const fn = (document.getElementById('g-firstname') || {}).value || '';
+    const ph = (document.getElementById('g-phone') || {}).value || '';
+    const btn = document.getElementById('btn-confirm');
+    if (btn) {
+      const ok = fn.trim().length > 0 && ph.trim().length >= 7;
+      btn.disabled = !ok;
+      btn.style.opacity = ok ? '' : '.4';
+      btn.style.pointerEvents = ok ? '' : 'none';
     }
   },
 
@@ -298,12 +343,36 @@ const Booking = {
   bindConfirm() {
     document.getElementById('btn-confirm').onclick = () => {
       const cu = App.currentUser;
-      if (!cu) { App.toast(App.t('booking.notLogged'),'error'); return; }
+      let userInfo, profileRef, isNew = false;
 
-      const note = document.getElementById('booking-note').value;
+      if (cu) {
+        // Logged-in: use account data
+        userInfo = { firstname: cu.firstname, lastname: cu.lastname, phone: cu.phone || '', email: cu.email };
+      } else {
+        // Guest: use form fields
+        const fn = (document.getElementById('g-firstname') || {}).value || '';
+        const ln = (document.getElementById('g-lastname') || {}).value || '';
+        const ph = (document.getElementById('g-phone') || {}).value || '';
+        const em = (document.getElementById('g-email') || {}).value || '';
+        if (!fn.trim() || ph.trim().length < 7) {
+          App.toast(App.t('booking.guestFill'), 'error'); return;
+        }
+        userInfo = { firstname: fn, lastname: ln, phone: ph, email: em };
+      }
+
+      // Find or create guest profile
+      const profile = App.findOrCreateProfile(userInfo);
+      profileRef = profile ? profile.ref : null;
+      isNew = profile ? !!profile.isNew : false;
+      if (profile) delete profile.isNew; // reset flag
+
+      const note = (document.getElementById('booking-note') || {}).value || '';
       const disc = App.earlyDiscount(this.state.date);
+
       const booking = App.createBooking({
-        userId: cu.id,
+        userId: cu ? cu.id : null,
+        profileRef,
+        guestInfo: cu ? null : userInfo,
         serviceId: this.state.service.id,
         stylistId: this.state.stylist.id,
         date: this.state.date,
@@ -314,21 +383,22 @@ const Booking = {
         note,
       });
 
-      // Store for step-5 actions
       window._lastBooking = booking;
+      window._lastProfile = profile;
+      window._isNewProfile = isNew;
 
-      // Populate step-5 confirmation panel
-      this.renderConfirmation(booking, cu);
+      const displayUser = cu || { ...userInfo };
+      this.renderConfirmation(booking, displayUser, profile);
 
       document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
       document.querySelector('[data-content="5"]').classList.add('active');
       document.querySelector('.steps-nav').style.display = 'none';
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      App.toast(App.t('booking.success'),'success');
+      App.toast(App.t('booking.success'), 'success');
     };
   },
 
-  renderConfirmation(booking, user) {
+  renderConfirmation(booking, user, profile) {
     const s = SERVICES.find(sv => sv.id === booking.serviceId);
     const st = STYLISTS.find(sv => sv.id === booking.stylistId);
     const [yy,mm,dd] = booking.date.split('-').map(Number);
@@ -337,14 +407,24 @@ const Booking = {
     const base = booking.price;
     const final = base - Math.round(base * disc / 100);
 
-    // Mini summary in step 5
     const sumEl = document.getElementById('confirm-mini-summary');
     if (sumEl) {
       sumEl.innerHTML = `
+        ${booking.ref ? `
+        <div class="booking-ref-hero">
+          <div class="booking-ref-label">${App.t('booking.bookingRef')}</div>
+          <div class="booking-ref-code">${booking.ref}</div>
+          ${profile ? `<div class="booking-ref-label" style="margin-top:.8rem">${App.t('booking.profileRef')}</div>
+          <div class="booking-ref-code" style="font-size:1.1rem;opacity:.8">${profile.ref}</div>` : ''}
+          <p style="font-family:'Cormorant Garamond',serif;font-size:.85rem;color:rgba(255,255,255,.5);margin-top:.6rem">
+            ${App.lang==='fr'?'Notez ces codes — ils vous permettent de retrouver vos commandes sur':'Save these codes — use them to track your orders at'}
+            <a href="mes-commandes.html" style="color:var(--gold)">mes-commandes.html</a>
+          </p>
+        </div>` : ''}
         <div class="confirm-receipt">
           <div class="confirm-receipt-header">
             <span>HALO BRAIDS</span>
-            <span style="font-size:.75rem;color:var(--muted)">#${booking.id.slice(-8).toUpperCase()}</span>
+            <span style="font-size:.75rem">${booking.ref || booking.id.slice(-8).toUpperCase()}</span>
           </div>
           <div class="cr-row"><span>${App.t('booking.service')}</span><span>${s ? s['name'+App.cap(App.lang)] : booking.serviceId}</span></div>
           <div class="cr-row"><span>${App.t('booking.stylist')}</span><span>${st ? st['name'+App.cap(App.lang)] : booking.stylistId}</span></div>
@@ -356,7 +436,6 @@ const Booking = {
         </div>`;
     }
 
-    // Wire up action buttons
     const btnEmail = document.getElementById('btn-email-confirm');
     if (btnEmail) btnEmail.href = App.buildConfirmEmail(booking, user);
 
@@ -368,6 +447,9 @@ const Booking = {
 
     const btnCal = document.getElementById('btn-add-cal');
     if (btnCal) btnCal.onclick = () => App.buildICS(booking);
+
+    const btnOrders = document.getElementById('btn-view-orders');
+    if (btnOrders) btnOrders.href = 'mes-commandes.html';
   }
 };
 

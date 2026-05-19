@@ -80,12 +80,67 @@ const App = {
     } return 'h_' + Math.abs(h).toString(36);
   },
 
+  // ── Reference generation ──
+  generateRef(prefix, len = 6) {
+    const chars = 'ABCDEFHJKLMNPQRSTUVWXYZ23456789';
+    let r = '';
+    for (let i = 0; i < len; i++) r += chars[Math.floor(Math.random() * chars.length)];
+    return `${prefix}-${r}`;
+  },
+
+  // ── Guest profiles (hidden, auto-created) ──
+  get profiles() { return JSON.parse(localStorage.getItem('hb_profiles') || '[]'); },
+  set profiles(v) { localStorage.setItem('hb_profiles', JSON.stringify(v)); },
+  normalizePhone(p) { return (p || '').replace(/\D/g, '').slice(-10); },
+
+  findOrCreateProfile({ firstname, lastname, phone, email }) {
+    const normPhone = this.normalizePhone(phone);
+    if (!firstname || !normPhone) return null;
+    const profiles = this.profiles;
+    let profile = profiles.find(p =>
+      this.normalizePhone(p.phone) === normPhone &&
+      p.firstname.toLowerCase() === firstname.toLowerCase().trim()
+    );
+    if (!profile) {
+      profile = {
+        ref: this.generateRef('CLT', 5),
+        firstname: firstname.trim(),
+        lastname: (lastname || '').trim(),
+        phone: phone || '',
+        email: email || '',
+        created: Date.now(),
+        isNew: true,
+      };
+      profiles.push(profile);
+      this.profiles = profiles;
+    }
+    return profile;
+  },
+
+  lookupOrders(firstname, phone) {
+    const normPhone = this.normalizePhone(phone);
+    const profile = this.profiles.find(p =>
+      this.normalizePhone(p.phone) === normPhone &&
+      p.firstname.toLowerCase() === (firstname || '').toLowerCase().trim()
+    );
+    if (!profile) return { profile: null, bookings: [] };
+    const bookings = this.bookings
+      .filter(b => b.profileRef === profile.ref)
+      .sort((a, b) => new Date(b.date + 'T' + b.time) - new Date(a.date + 'T' + a.time));
+    return { profile, bookings };
+  },
+
+  lookupByBookingRef(ref) {
+    return this.bookings.find(b => b.ref === ref.toUpperCase().trim()) || null;
+  },
+
   // ── Bookings ──
   get bookings() { return JSON.parse(localStorage.getItem('hb_bookings') || '[]'); },
   set bookings(v) { localStorage.setItem('hb_bookings', JSON.stringify(v)); },
   createBooking(data) {
     const b = {
       id: 'b_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+      ref: this.generateRef('HB', 6),
       ...data, created: Date.now(), status:'confirmed',
     };
     const bookings = this.bookings; bookings.push(b); this.bookings = bookings;
@@ -167,6 +222,7 @@ const App = {
         ${link('about.html','nav.about','about')}
         ${link('faq.html','nav.faq','faq')}
         ${link('contact.html','nav.contact','contact')}
+        ${link('mes-commandes.html','nav.orders','orders')}
       </div>
       <div class="nav-right">
         <div class="lang-toggle">

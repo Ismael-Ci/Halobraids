@@ -104,14 +104,47 @@
 
     <div class="summary" id="summary"></div>
 
+    <!-- Payment card -->
+    <div id="payment-card" style="max-width:600px;margin:1.5rem auto 0"></div>
+
+    <!-- Guest form (shown when not logged in) -->
+    <div id="guest-section" class="guest-section hidden" style="max-width:600px;margin:1.5rem auto 0">
+      <div class="guest-section-title">
+        <span style="font-size:1.1rem">👤</span>
+        <span data-i18n="booking.guestTitle"></span>
+      </div>
+      <p class="guest-section-sub" data-i18n="booking.guestSubtitle"></p>
+      <div class="guest-grid">
+        <div>
+          <label data-i18n="booking.guestFirstname"></label>
+          <input type="text" id="g-firstname" autocomplete="given-name" oninput="Booking._updateGuestConfirmBtn()"/>
+        </div>
+        <div>
+          <label data-i18n="booking.guestLastname"></label>
+          <input type="text" id="g-lastname" autocomplete="family-name"/>
+        </div>
+      </div>
+      <div class="guest-grid" style="margin-top:.7rem">
+        <div>
+          <label data-i18n="booking.guestPhone"></label>
+          <input type="tel" id="g-phone" autocomplete="tel" placeholder="+1 (613)" oninput="Booking._updateGuestConfirmBtn()"/>
+        </div>
+        <div>
+          <label data-i18n="booking.guestEmail"></label>
+          <input type="email" id="g-email" autocomplete="email" placeholder="email@..."/>
+        </div>
+      </div>
+      <p class="guest-section-or">
+        <span data-i18n="booking.orLogin"></span>
+        <a href="account.html?redirect=booking" data-i18n="booking.loginLink"></a>
+      </p>
+    </div>
+
+    <div id="auth-needed" class="hidden"></div>
+
     <div style="max-width:600px;margin:1.5rem auto 0">
       <label data-i18n="booking.note" style="display:block;font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.2em;color:var(--muted);margin-bottom:.4rem"></label>
       <textarea id="booking-note" class="form" style="width:100%;background:#fff;border:1px solid var(--border);padding:.85rem;font-family:'Cormorant Garamond',serif;font-size:1rem;outline:none" rows="3"></textarea>
-    </div>
-
-    <div id="auth-needed" class="card mt-3 hidden" style="max-width:600px;margin:1.5rem auto 0;text-align:center;background:#fff8e8;border-color:var(--gold)">
-      <p style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--text);margin-bottom:1rem" data-i18n="booking.notLogged"></p>
-      <a href="account.html?redirect=booking" class="btn" data-i18n="booking.loginBtn"></a>
     </div>
 
     <div class="step-actions">
@@ -163,7 +196,10 @@
         </div>
       </div>
 
-      <a href="dashboard.html" class="btn btn-dark btn-lg" style="margin-top:2rem" data-i18n="booking.viewDash"></a>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:2rem">
+        <a href="mes-commandes.html" id="btn-view-orders" class="btn btn-dark btn-lg" data-i18n="booking.viewOrders"></a>
+        <a href="dashboard.html" class="btn btn-outline btn-lg" data-i18n="booking.viewDash"></a>
+      </div>
     </div>
   </div>
 
