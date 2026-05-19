@@ -163,7 +163,7 @@ const Booking = {
     title.textContent = `${dd} ${monthName} ${yy}`.toUpperCase();
 
     const available = TIME_SLOTS
-      .filter(t => parseInt(t.split(':')[0]) + svcDuration <= 20)
+      .filter(t => parseInt(t.split(':')[0]) + svcDuration <= 22)
       .map(t => ({
         time: t,
         taken: App.isSlotTaken(this.state.stylist.id, this.state.date, t, svcDuration)
@@ -196,6 +196,12 @@ const Booking = {
     const dateDisplay = `${dd} ${App.t('month.'+(mm-1))} ${yy}`;
     const deposit = 50;
 
+    // Early booking discount
+    const disc = App.earlyDiscount(this.state.date);
+    const base = s.price;
+    const discAmt = Math.round(base * disc.pct / 100);
+    const final = base - discAmt;
+
     document.getElementById('summary').innerHTML = `
       <div class="summary-row">
         <span class="k">${App.t('booking.service')}</span>
@@ -215,15 +221,38 @@ const Booking = {
       </div>
       <div class="summary-row">
         <span class="k">${App.t('booking.duration')}</span>
-        <span class="v">${s.duration}h</span>
+        <span class="v">${s.durationMin}–${s.duration}h</span>
       </div>
       <div class="summary-row">
         <span class="k">${App.t('booking.price')}</span>
-        <span class="v">${App.t('common.from')} ${s.price} $</span>
+        <span class="v">${App.t('common.from')} ${s.price} $${s.priceMax ? ' — '+s.priceMax+' $' : ''}</span>
       </div>
+      ${disc.pct > 0 ? `
+      <div class="summary-row discount-row">
+        <span class="k">🏷️ ${App.t('booking.discount')}</span>
+        <span class="v disc-badge">${disc.label}</span>
+      </div>
+      <div class="summary-row discount-row">
+        <span class="k">${App.t('booking.originalPrice')}</span>
+        <span class="v" style="text-decoration:line-through;color:var(--muted)">${base} $</span>
+      </div>
+      <div class="summary-row discount-row">
+        <span class="k">${App.t('booking.finalPrice')}</span>
+        <span class="v" style="color:#4caf50;font-weight:600">${final} $ ✓</span>
+      </div>` : ''}
       <div class="summary-total">
         <span class="k">${App.t('booking.deposit')}</span>
-        <span class="v">${deposit} $</span>
+        <span class="v">50 $</span>
+      </div>
+      <div class="summary-info-box">
+        <div class="summary-info-item">
+          <span class="info-icon">⚠️</span>
+          <div><strong>${App.t('booking.policy')}</strong><br>${App.t('booking.policyText')}</div>
+        </div>
+        <div class="summary-info-item">
+          <span class="info-icon">💆</span>
+          <div><strong>${App.t('booking.hairPrep')}</strong><br>${App.t('booking.hairPrepText')}</div>
+        </div>
       </div>
     `;
 
@@ -272,6 +301,7 @@ const Booking = {
       if (!cu) { App.toast(App.t('booking.notLogged'),'error'); return; }
 
       const note = document.getElementById('booking-note').value;
+      const disc = App.earlyDiscount(this.state.date);
       const booking = App.createBooking({
         userId: cu.id,
         serviceId: this.state.service.id,
@@ -280,8 +310,15 @@ const Booking = {
         time: this.state.time,
         price: this.state.service.price,
         duration: this.state.service.duration,
+        discountPct: disc.pct,
         note,
       });
+
+      // Store for step-5 actions
+      window._lastBooking = booking;
+
+      // Populate step-5 confirmation panel
+      this.renderConfirmation(booking, cu);
 
       document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
       document.querySelector('[data-content="5"]').classList.add('active');
@@ -289,6 +326,48 @@ const Booking = {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       App.toast(App.t('booking.success'),'success');
     };
+  },
+
+  renderConfirmation(booking, user) {
+    const s = SERVICES.find(sv => sv.id === booking.serviceId);
+    const st = STYLISTS.find(sv => sv.id === booking.stylistId);
+    const [yy,mm,dd] = booking.date.split('-').map(Number);
+    const dateDisp = `${dd} ${App.t('month.'+(mm-1))} ${yy}`;
+    const disc = booking.discountPct || 0;
+    const base = booking.price;
+    const final = base - Math.round(base * disc / 100);
+
+    // Mini summary in step 5
+    const sumEl = document.getElementById('confirm-mini-summary');
+    if (sumEl) {
+      sumEl.innerHTML = `
+        <div class="confirm-receipt">
+          <div class="confirm-receipt-header">
+            <span>HALO BRAIDS</span>
+            <span style="font-size:.75rem;color:var(--muted)">#${booking.id.slice(-8).toUpperCase()}</span>
+          </div>
+          <div class="cr-row"><span>${App.t('booking.service')}</span><span>${s ? s['name'+App.cap(App.lang)] : booking.serviceId}</span></div>
+          <div class="cr-row"><span>${App.t('booking.stylist')}</span><span>${st ? st['name'+App.cap(App.lang)] : booking.stylistId}</span></div>
+          <div class="cr-row"><span>${App.t('booking.date')}</span><span>${dateDisp}</span></div>
+          <div class="cr-row"><span>${App.t('booking.time')}</span><span>${booking.time}</span></div>
+          ${disc > 0 ? `<div class="cr-row" style="color:#4caf50"><span>${App.t('booking.discount')}</span><span>−${Math.round(base*disc/100)} $</span></div>` : ''}
+          <div class="cr-row cr-total"><span>${App.t('booking.finalPrice')}</span><span>${final} $</span></div>
+          <div class="cr-row" style="font-size:.8rem;color:var(--muted)"><span>${App.t('booking.deposit')}</span><span>50 $</span></div>
+        </div>`;
+    }
+
+    // Wire up action buttons
+    const btnEmail = document.getElementById('btn-email-confirm');
+    if (btnEmail) btnEmail.href = App.buildConfirmEmail(booking, user);
+
+    const btnSms = document.getElementById('btn-sms-confirm');
+    if (btnSms) btnSms.href = App.buildSmsLink(booking, user);
+
+    const btnInv = document.getElementById('btn-invoice');
+    if (btnInv) btnInv.onclick = () => App.printInvoice(booking, user);
+
+    const btnCal = document.getElementById('btn-add-cal');
+    if (btnCal) btnCal.onclick = () => App.buildICS(booking);
   }
 };
 

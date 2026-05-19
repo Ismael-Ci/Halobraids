@@ -25,6 +25,11 @@
 </head>
 <body data-page="home">
 
+<!-- Announcement bar -->
+<div class="announce-bar" id="announce-bar" style="display:none">
+  <strong id="announce-text"></strong>
+  <button class="announce-close" onclick="document.getElementById('announce-bar').style.display='none'" title="Fermer">✕</button>
+</div>
 <nav class="nav" id="app-nav"></nav>
 
 <!-- HERO -->
@@ -73,6 +78,29 @@
   <div class="stat-box fade-up">
     <span class="stat-num" data-count="3">3</span>
     <span class="stat-lbl" data-i18n="stats.stylists"></span>
+  </div>
+</div>
+
+<!-- PROMOTIONS TEASER -->
+<section class="promo-teaser" id="promo-teaser-section">
+  <div class="section-header fade-up">
+    <span class="label" data-i18n="promo.label"></span>
+    <div class="h-script" data-i18n="promo.title"></div>
+  </div>
+  <div class="promo-teaser-grid" id="home-promos"></div>
+  <a href="promos.html" class="btn btn-dark mt-3" data-i18n="promo.viewAll"></a>
+</section>
+
+<!-- EVENTS RIBBON -->
+<div class="events-ribbon" id="events-ribbon">
+  <div class="section-header fade-up" style="text-align:center">
+    <span class="label" data-i18n="events.label"></span>
+    <div class="h-script" data-i18n="events.title"></div>
+    <div style="font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.2em;color:rgba(255,255,255,.45);margin-top:.5rem" data-i18n="events.subtitle"></div>
+  </div>
+  <div class="events-grid" id="home-events"></div>
+  <div class="text-center mt-3">
+    <a href="promos.html#events" class="btn" data-i18n="events.viewAll"></a>
   </div>
 </div>
 
@@ -186,8 +214,77 @@
       </div>`;
     }).join('');
   }
-  function onLangChange() { renderHomeServices(); }
-  document.addEventListener('DOMContentLoaded', renderHomeServices);
+  function renderHomePromos() {
+    const grid = document.getElementById('home-promos');
+    if (!grid) return;
+    const lang = App.cap(App.lang);
+    // Show first 4 promos
+    grid.innerHTML = PROMOTIONS.slice(0,4).map(p => `
+      <div class="pt-card fade-up">
+        <div class="pt-badge">${p['badge'+lang]}</div>
+        <div style="font-size:1.8rem;margin-bottom:.6rem">${p.emoji}</div>
+        <div class="pt-name">${p['name'+lang].toUpperCase()}</div>
+        <div class="pt-desc">${p['desc'+lang]}</div>
+        <div style="font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.15em;color:var(--gold);margin-top:.8rem">${p['expiry'+lang]}</div>
+      </div>`).join('');
+  }
+
+  function renderHomeEvents() {
+    const grid = document.getElementById('home-events');
+    if (!grid) return;
+    const lang = App.cap(App.lang);
+    const today = new Date(); today.setHours(0,0,0,0);
+    const upcoming = EVENTS.filter(ev => new Date(ev.endDate) >= today)
+      .sort((a,b) => new Date(a.date) - new Date(b.date)).slice(0,4);
+    if (!upcoming.length) {
+      grid.innerHTML = `<p style="color:rgba(255,255,255,.4);font-family:'Cormorant Garamond',serif;text-align:center;grid-column:1/-1" data-i18n="events.noEvents">${App.t('events.noEvents')}</p>`;
+      return;
+    }
+    grid.innerHTML = upcoming.map(ev => {
+      const d = new Date(ev.date);
+      const isToday = d.getTime() === today.getTime();
+      const monthShort = App.t('monthShort.' + d.getMonth());
+      const tagColors = { PROMO:'#c9a96e', FERMÉ:'#e07b54', FERME:'#e07b54', OUVERT:'#4caf50', RAPPEL:'#7c9ac9' };
+      const tc = tagColors[ev.tag] || '#c9a96e';
+      return `
+        <div class="event-card">
+          <span class="event-tag" style="background:${tc}20;color:${tc}">${isToday ? App.t('events.today') : ev.tag}</span>
+          <div class="event-date">${d.getDate()} ${monthShort} ${d.getFullYear()}</div>
+          <div class="event-name">${ev['name'+App.cap(App.lang)]}</div>
+          <div class="event-desc">${ev['desc'+App.cap(App.lang)]}</div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderAnnouncement() {
+    const bar = document.getElementById('announce-bar');
+    const txt = document.getElementById('announce-text');
+    if (!bar || !txt) return;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const dismissed = sessionStorage.getItem('hb_announce_dismissed');
+    const next = EVENTS.find(ev =>
+      new Date(ev.date) >= today &&
+      ev.tag !== 'FERMÉ' && ev.tag !== 'FERME'
+    );
+    if (next && !dismissed) {
+      const d = new Date(next.date);
+      const monthShort = App.t('monthShort.' + d.getMonth());
+      txt.textContent = `${next['name'+App.cap(App.lang)]} · ${d.getDate()} ${monthShort} — ${next['desc'+App.cap(App.lang)]}`;
+      bar.style.display = 'flex';
+      bar.querySelector('.announce-close').onclick = () => {
+        bar.style.display = 'none';
+        sessionStorage.setItem('hb_announce_dismissed', '1');
+      };
+    }
+  }
+
+  function onLangChange() { renderHomeServices(); renderHomePromos(); renderHomeEvents(); }
+  document.addEventListener('DOMContentLoaded', () => {
+    renderHomeServices();
+    renderHomePromos();
+    renderHomeEvents();
+    renderAnnouncement();
+  });
 </script>
 </body>
 </html>

@@ -122,11 +122,48 @@
 
   <!-- SUCCESS -->
   <div class="step-content" data-content="5">
-    <div class="text-center" style="max-width:600px;margin:0 auto;padding:3rem 2rem">
-      <div style="width:80px;height:80px;border-radius:50%;background:var(--gold);margin:0 auto 1.5rem;display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:var(--black)">✓</div>
+    <div class="confirm-wrap">
+      <!-- Checkmark -->
+      <div class="confirm-check">✓</div>
       <div class="h-script" style="font-size:3rem" data-i18n="booking.success"></div>
-      <p style="font-family:'Cormorant Garamond',serif;color:var(--muted);font-size:1.1rem;line-height:1.8;margin:1.5rem 0 2.5rem" data-i18n="booking.successDesc"></p>
-      <a href="dashboard.html" class="btn btn-dark btn-lg" data-i18n="booking.successBtn"></a>
+      <p class="confirm-desc" data-i18n="booking.confirmNote"></p>
+
+      <!-- Mini receipt -->
+      <div id="confirm-mini-summary"></div>
+
+      <!-- Action buttons -->
+      <div class="confirm-actions">
+        <a id="btn-email-confirm" href="#" class="btn btn-dark" target="_blank">
+          📧 <span data-i18n="booking.sendEmail"></span>
+        </a>
+        <a id="btn-sms-confirm" href="#" class="btn btn-outline">
+          💬 <span data-i18n="booking.sendSms"></span>
+        </a>
+        <button id="btn-invoice" class="btn btn-outline">
+          🧾 <span data-i18n="booking.printInvoice"></span>
+        </button>
+        <button id="btn-add-cal" class="btn btn-outline">
+          📅 <span data-i18n="booking.addCalendar"></span>
+        </button>
+      </div>
+
+      <!-- Reminders -->
+      <div class="confirm-reminders">
+        <div class="reminder-item">
+          <span>⚠️</span>
+          <span data-i18n="booking.policyText"></span>
+        </div>
+        <div class="reminder-item">
+          <span>💆</span>
+          <span data-i18n="booking.hairPrepText"></span>
+        </div>
+        <div class="reminder-item">
+          <span>📍</span>
+          <span>Ottawa, ON &amp; Gatineau, QC · hello@halobraids.ca</span>
+        </div>
+      </div>
+
+      <a href="dashboard.html" class="btn btn-dark btn-lg" style="margin-top:2rem" data-i18n="booking.viewDash"></a>
     </div>
   </div>
 
